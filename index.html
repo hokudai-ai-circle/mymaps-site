@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MyMaps サポート</title>
+<style>
+  :root {
+    --teal: #0E7C7B;
+    --teal-pale: #E7F2F1;
+    --ink: #111111;
+    --sub: #556666;
+    --line: #E2E9E9;
+    --bg: #F1F5F5;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 24px 16px 64px;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Noto Sans JP", sans-serif;
+    line-height: 1.8;
+  }
+  main {
+    max-width: 720px;
+    margin: 0 auto;
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 32px 24px;
+  }
+  h1 { font-size: 26px; margin: 0 0 4px; color: var(--teal); }
+  .tagline { color: var(--sub); font-size: 15px; margin: 0 0 24px; }
+  h2 {
+    font-size: 17px;
+    margin: 32px 0 8px;
+    padding-top: 16px;
+    border-top: 1px solid var(--line);
+  }
+  h2:first-of-type { border-top: none; padding-top: 0; }
+  p { margin: 0 0 12px; }
+  ul { margin: 0 0 12px; padding-left: 20px; }
+  li { margin-bottom: 6px; }
+  strong { color: var(--teal); }
+  a { color: var(--teal); }
+  .lead {
+    background: var(--teal-pale);
+    border-radius: 10px;
+    padding: 16px;
+    margin: 0 0 24px;
+  }
+  .contact {
+    background: var(--teal-pale);
+    border-radius: 10px;
+    padding: 16px;
+    margin: 0 0 12px;
+  }
+  .contact a { font-size: 17px; font-weight: 700; }
+  dt { font-weight: 700; margin-top: 16px; }
+  dd { margin: 4px 0 0; color: var(--sub); }
+  footer { max-width: 720px; margin: 16px auto 0; color: var(--sub); font-size: 12px; text-align: center; }
+  @media (max-width: 480px) { main { padding: 24px 16px; } }
+</style>
+</head>
+<body>
+<main>
+  <h1>MyMaps</h1>
+  <p class="tagline">NoMaps の予定を、移動時間ごと組み立てる。</p>
+
+  <p class="lead">
+    公式のタイムスケジュールは、会場間の移動時間が考慮されていません。
+    MyMaps は予定と予定の「間」を計算して、<strong>その予定は間に合わない</strong>と事前に警告します。
+    受付締切のあるイベントも見落とさないようにします。
+  </p>
+
+  <h2>お問い合わせ</h2>
+  <p>不具合の報告、ご要望、その他のお問い合わせはこちらへお願いします。</p>
+  <div class="contact">
+    <a href="mailto:hokudai.ai.circle@gmail.com">hokudai.ai.circle@gmail.com</a>
+  </div>
+  <p>お返事までに数日いただくことがあります。不具合の報告では、
+  <strong>お使いの端末（iPhone の機種名）</strong>と<strong>どの画面で何をしたときに起きたか</strong>を
+  書いていただけると助かります。スクリーンショットがあるとより確実です。</p>
+
+  <h2>よくある質問</h2>
+  <dl>
+    <dt>アカウント登録は必要ですか？</dt>
+    <dd>不要です。氏名やメールアドレスの入力を求めることはありません。</dd>
+
+    <dt>入力した内容はどこに保存されますか？</dt>
+    <dd>すべてお使いの端末の中だけに保存されます。外部のサーバーへは送信しません。</dd>
+
+    <dt>位置情報は使われますか？</dt>
+    <dd>使いません。会場マップの「現在地」は、予定に追加したセッションの会場をもとにした目安です。</dd>
+
+    <dt>オフラインでも使えますか？</dt>
+    <dd>使えます。通信を必要とする機能はありません。</dd>
+
+    <dt>データを消したいのですが。</dt>
+    <dd>アプリを端末から削除すると、保存された内容もすべて削除されます。</dd>
+  </dl>
+
+  <h2>プライバシーポリシー</h2>
+  <p><a href="./privacy-policy.html">MyMaps プライバシーポリシー</a></p>
+</main>
+<footer>MyMaps — 堀部 琥白（北大AIサークル）</footer>
+</body>
+</html>
