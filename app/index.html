@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MyMaps をインストール</title>
+<meta name="robots" content="noindex">
+<style>
+  :root {
+    --teal: #0E7C7B;
+    --teal-dark: #0A5958;
+    --teal-pale: #E7F2F1;
+    --ink: #111111;
+    --sub: #556666;
+    --line: #E2E9E9;
+    --bg: #F1F5F5;
+    --warn-pale: #FFF6DC;
+    --warn-line: #F2B705;
+    --warn-ink: #8A6800;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 24px 16px 64px;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Noto Sans JP", sans-serif;
+    line-height: 1.8;
+  }
+  main {
+    max-width: 480px;
+    margin: 0 auto;
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 32px 24px;
+    text-align: center;
+  }
+  h1 { font-size: 26px; margin: 0 0 4px; color: var(--teal); }
+  .tagline { color: var(--sub); font-size: 15px; margin: 0 0 24px; }
+  .notice {
+    background: var(--teal-pale);
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin: 0 0 24px;
+    color: var(--teal-dark);
+    font-size: 13px;
+    line-height: 1.7;
+    text-align: left;
+  }
+  .btn {
+    display: block;
+    background: var(--teal);
+    color: #fff;
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 17px;
+    border-radius: 999px;
+    padding: 15px 20px;
+    margin: 0 0 12px;
+  }
+  .btn.sub {
+    background: #fff;
+    color: var(--teal);
+    border: 1.5px solid var(--teal);
+    font-size: 15px;
+    padding: 12px 20px;
+  }
+  .pending {
+    background: var(--warn-pale);
+    border: 1.5px solid var(--warn-line);
+    color: var(--warn-ink);
+    border-radius: 10px;
+    padding: 16px;
+    text-align: left;
+    font-size: 14px;
+  }
+  .pending strong { display: block; margin-bottom: 4px; }
+  .other { margin-top: 20px; font-size: 13px; color: var(--sub); }
+  .other a { color: var(--teal); }
+  footer {
+    max-width: 480px;
+    margin: 16px auto 0;
+    color: var(--sub);
+    font-size: 12px;
+    text-align: center;
+  }
+</style>
+</head>
+<body>
+<main>
+  <h1>MyMaps</h1>
+  <p class="tagline">NoMaps の予定を、移動時間ごと組み立てる。</p>
+
+  <!--
+    「公式」「公認」「認定」は使わない（事務局の指示・2026-08-11）。
+    ここは現場で最初に読まれる場所なので、関係を最初に明示する。
+  -->
+  <div class="notice">
+    北海道大学の学生有志がつくった <strong>NoMaps ファンアプリ</strong>です。
+    NoMaps の公式アプリではありません。<br>
+    チケットの購入やお申し込みは、NoMaps 公式サイトでお願いします。
+  </div>
+
+  <div id="target"></div>
+
+  <p class="other">
+    うまく開けないときは
+    <a href="https://hokudai-ai-circle.github.io/mymaps-site/">サポートページ</a>
+    をご覧ください。
+  </p>
+</main>
+<footer>MyMaps — 北海道大学 学生有志</footer>
+
+<script>
+/*
+ * QRの飛び先。**ストアURLが変わってもQRを刷り直さずに済む**ようにするための1枚。
+ *
+ * ストアURLはここだけを直す。空文字のあいだは「準備中」を出し、
+ * 存在しないページへ飛ばさない。
+ *
+ *   iOS   … App Store Connect でAppIDが確定したら
+ *           https://apps.apple.com/jp/app/id0000000000
+ *   Android … 公開したら
+ *           https://play.google.com/store/apps/details?id=com.horibekohaku.mymaps
+ */
+var STORE = {
+  ios: '',
+  android: ''
+};
+
+(function () {
+  var ua = navigator.userAgent || '';
+  // iPadOS 13以降はUAがMacを名乗る。タッチ点数で見分ける
+  var isIpadOS = /Macintosh/.test(ua) && navigator.maxTouchPoints > 1;
+  var isIOS = /iPhone|iPad|iPod/.test(ua) || isIpadOS;
+  var isAndroid = /Android/.test(ua);
+
+  var el = document.getElementById('target');
+
+  function button(href, label, sub) {
+    var a = document.createElement('a');
+    a.className = 'btn' + (sub ? ' sub' : '');
+    a.href = href;
+    a.textContent = label;
+    a.rel = 'noopener';
+    return a;
+  }
+
+  function pending(what) {
+    var d = document.createElement('div');
+    d.className = 'pending';
+    d.innerHTML = '<strong>' + what + 'は準備中です</strong>'
+      + '公開までもうしばらくお待ちください。このページのURLは変わりません。';
+    return d;
+  }
+
+  /*
+   * 自動で飛ばさない。**関係の明示（公式アプリではないこと）を読んでもらう前に
+   * ストアへ飛ばしてしまわないため。** 現場で1タップ増えるが、そこは譲らない。
+   */
+  if (isIOS) {
+    el.appendChild(STORE.ios ? button(STORE.ios, 'App Store を開く') : pending('iPhone版'));
+    if (STORE.android) el.appendChild(button(STORE.android, 'Android の方はこちら', true));
+  } else if (isAndroid) {
+    el.appendChild(STORE.android ? button(STORE.android, 'Google Play を開く') : pending('Android版'));
+    if (STORE.ios) el.appendChild(button(STORE.ios, 'iPhone の方はこちら', true));
+  } else {
+    // PCなど。どちらか分からないので両方出す
+    if (STORE.ios) el.appendChild(button(STORE.ios, 'App Store を開く'));
+    if (STORE.android) el.appendChild(button(STORE.android, 'Google Play を開く', !!STORE.ios));
+    if (!STORE.ios && !STORE.android) el.appendChild(pending('アプリ'));
+  }
+})();
+</script>
+</body>
+</html>
