@@ -104,6 +104,15 @@
 
   <div id="target"></div>
 
+  <!--
+    JSが動かないと #target が空のままになる。見出しと注意書きは出るので
+    真っ白にはならないが、**何をすればいいか分からない画面**になる。
+    確実に動くWeb版への導線だけは、素のHTMLで置いておく。
+  -->
+  <noscript>
+    <a class="btn" href="https://hokudai-ai-circle.github.io/mymaps-web/">ブラウザで開く</a>
+  </noscript>
+
   <p class="other">
     うまく開けないときは
     <a href="https://hokudai-ai-circle.github.io/mymaps-site/">サポートページ</a>
@@ -123,10 +132,15 @@
  *           https://apps.apple.com/jp/app/id0000000000
  *   Android … 公開したら
  *           https://play.google.com/store/apps/details?id=com.horibekohaku.mymaps
+ *
+ * 🔴 **web は最初から入っている。** ストアの審査を待たずに配れるようにするための
+ * 一手で、そうへいさんの指摘（2026-08-22）で足した。これが無いと、
+ * **すぐ使えるものがあるのに「準備中です」と言って帰してしまう。**
  */
 var STORE = {
   ios: '',
-  android: ''
+  android: '',
+  web: 'https://hokudai-ai-circle.github.io/mymaps-web/'
 };
 
 (function () {
@@ -150,26 +164,56 @@ var STORE = {
   function pending(what) {
     var d = document.createElement('div');
     d.className = 'pending';
+    // Web版があるなら「お待ちください」とは言わない。待たなくていいので
     d.innerHTML = '<strong>' + what + 'は準備中です</strong>'
-      + '公開までもうしばらくお待ちください。このページのURLは変わりません。';
+      + (STORE.web
+        ? 'ストアでの公開までは、下のボタンからブラウザでお使いいただけます。'
+        : '公開までもうしばらくお待ちください。このページのURLは変わりません。');
     return d;
+  }
+
+  /*
+   * ブラウザ版。**ストアが出そろうまでの主役で、出そろったあとは控えに回る。**
+   * `sub` を店側の有無で決めているのはそのため。
+   */
+  function web(hasStore) {
+    var a = button(STORE.web, 'ブラウザですぐ使う', hasStore);
+    var p = document.createElement('p');
+    p.className = 'other';
+    p.style.marginTop = '4px';
+    p.textContent = 'インストールなしで開きます。';
+    var wrap = document.createDocumentFragment();
+    wrap.appendChild(a);
+    wrap.appendChild(p);
+    return wrap;
   }
 
   /*
    * 自動で飛ばさない。**関係の明示（公式アプリではないこと）を読んでもらう前に
    * ストアへ飛ばしてしまわないため。** 現場で1タップ増えるが、そこは譲らない。
    */
+  /*
+   * 並び順は「その端末で使えるもの」から。**別のOS向けのリンクは必ず最後。**
+   * iPhoneで「Android の方はこちら」がブラウザ版より上にあると、
+   * いま押せる唯一のボタンが下に埋もれる。
+   */
   if (isIOS) {
-    el.appendChild(STORE.ios ? button(STORE.ios, 'App Store を開く') : pending('iPhone版'));
+    // iPadに「iPhone版は準備中」と出ていたので、端末に合わせて呼び分ける
+    var iosLabel = (/iPad/.test(ua) || isIpadOS) ? 'iPad版' : 'iPhone版';
+    el.appendChild(STORE.ios ? button(STORE.ios, 'App Store を開く') : pending(iosLabel));
+    if (STORE.web) el.appendChild(web(!!STORE.ios));
     if (STORE.android) el.appendChild(button(STORE.android, 'Android の方はこちら', true));
   } else if (isAndroid) {
     el.appendChild(STORE.android ? button(STORE.android, 'Google Play を開く') : pending('Android版'));
+    if (STORE.web) el.appendChild(web(!!STORE.android));
     if (STORE.ios) el.appendChild(button(STORE.ios, 'iPhone の方はこちら', true));
   } else {
     // PCなど。どちらか分からないので両方出す
     if (STORE.ios) el.appendChild(button(STORE.ios, 'App Store を開く'));
     if (STORE.android) el.appendChild(button(STORE.android, 'Google Play を開く', !!STORE.ios));
-    if (!STORE.ios && !STORE.android) el.appendChild(pending('アプリ'));
+    if (!STORE.ios && !STORE.android && !STORE.web) el.appendChild(pending('アプリ'));
+    // PCならストアより先にブラウザ版。そもそもストアアプリを入れられない
+    if (STORE.web) el.appendChild(web(false));
   }
 })();
 </script>
