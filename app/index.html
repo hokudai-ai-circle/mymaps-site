@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MyMaps をインストール</title>
+<meta name="robots" content="noindex">
+<style>
+  :root {
+    --teal: #0E7C7B;
+    --teal-dark: #0A5958;
+    --teal-pale: #E7F2F1;
+    --ink: #111111;
+    --sub: #556666;
+    --line: #E2E9E9;
+    --bg: #F1F5F5;
+    --warn-pale: #FFF6DC;
+    --warn-line: #F2B705;
+    --warn-ink: #8A6800;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 24px 16px 64px;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Noto Sans JP", sans-serif;
+    line-height: 1.8;
+  }
+  main {
+    max-width: 480px;
+    margin: 0 auto;
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 32px 24px;
+    text-align: center;
+  }
+  h1 { font-size: 26px; margin: 0 0 4px; color: var(--teal); }
+  .tagline { color: var(--sub); font-size: 15px; margin: 0 0 24px; }
+  .notice {
+    background: var(--teal-pale);
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin: 0 0 24px;
+    color: var(--teal-dark);
+    font-size: 13px;
+    line-height: 1.7;
+    text-align: left;
+  }
+  .btn {
+    display: block;
+    background: var(--teal);
+    color: #fff;
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 17px;
+    border-radius: 999px;
+    padding: 15px 20px;
+    margin: 0 0 12px;
+  }
+  .btn.sub {
+    background: #fff;
+    color: var(--teal);
+    border: 1.5px solid var(--teal);
+    font-size: 15px;
+    padding: 12px 20px;
+  }
+  .pending {
+    background: var(--warn-pale);
+    border: 1.5px solid var(--warn-line);
+    color: var(--warn-ink);
+    border-radius: 10px;
+    padding: 16px;
+    text-align: left;
+    font-size: 14px;
+  }
+  .pending strong { display: block; margin-bottom: 4px; }
+  .other { margin-top: 20px; font-size: 13px; color: var(--sub); }
+  .other a { color: var(--teal); }
+  footer {
+    max-width: 480px;
+    margin: 16px auto 0;
+    color: var(--sub);
+    font-size: 12px;
+    text-align: center;
+  }
+</style>
+</head>
+<body>
+<main>
+  <h1>MyMaps</h1>
+  <p class="tagline">NoMaps の予定を、移動時間ごと組み立てる。</p>
+
+  <!--
+    「公式」「公認」「認定」は使わない（事務局の指示・2026-08-11）。
+    ここは現場で最初に読まれる場所なので、関係を最初に明示する。
+  -->
+  <div class="notice">
+    北海道大学の学生有志がつくった <strong>NoMaps ファンアプリ</strong>です。
+    NoMaps の公式アプリではありません。<br>
+    チケットの購入やお申し込みは、NoMaps 公式サイトでお願いします。
+  </div>
+
+  <div id="target"></div>
+
+  <!--
+    JSが動かないと #target が空のままになる。見出しと注意書きは出るので
+    真っ白にはならないが、**何をすればいいか分からない画面**になる。
+    確実に動くWeb版への導線だけは、素のHTMLで置いておく。
+  -->
+  <noscript>
+    <a class="btn" href="https://hokudai-ai-circle.github.io/mymaps-web/">ブラウザで開く</a>
+  </noscript>
+
+  <p class="other">
+    うまく開けないときは
+    <a href="https://hokudai-ai-circle.github.io/mymaps-site/">サポートページ</a>
+    をご覧ください。
+  </p>
+</main>
+<footer>MyMaps — 北海道大学 学生有志</footer>
+
+<script>
+/*
+ * QRの飛び先。**ストアURLが変わってもQRを刷り直さずに済む**ようにするための1枚。
+ *
+ * ストアURLはここだけを直す。空文字のあいだは「準備中」を出し、
+ * 存在しないページへ飛ばさない。
+ *
+ *   iOS   … App Store Connect でAppIDが確定したら
+ *           https://apps.apple.com/jp/app/id0000000000
+ *   Android … 公開したら
+ *           https://play.google.com/store/apps/details?id=com.horibekohaku.mymaps
+ *
+ * 🔴 **web は最初から入っている。** ストアの審査を待たずに配れるようにするための
+ * 一手で、そうへいさんの指摘（2026-08-22）で足した。これが無いと、
+ * **すぐ使えるものがあるのに「準備中です」と言って帰してしまう。**
+ */
+var STORE = {
+  ios: '',
+  android: '',
+  web: 'https://hokudai-ai-circle.github.io/mymaps-web/'
+};
+
+(function () {
+  var ua = navigator.userAgent || '';
+  // iPadOS 13以降はUAがMacを名乗る。タッチ点数で見分ける
+  var isIpadOS = /Macintosh/.test(ua) && navigator.maxTouchPoints > 1;
+  var isIOS = /iPhone|iPad|iPod/.test(ua) || isIpadOS;
+  var isAndroid = /Android/.test(ua);
+
+  var el = document.getElementById('target');
+
+  function button(href, label, sub) {
+    var a = document.createElement('a');
+    a.className = 'btn' + (sub ? ' sub' : '');
+    a.href = href;
+    a.textContent = label;
+    a.rel = 'noopener';
+    return a;
+  }
+
+  function pending(what) {
+    var d = document.createElement('div');
+    d.className = 'pending';
+    // Web版があるなら「お待ちください」とは言わない。待たなくていいので
+    d.innerHTML = '<strong>' + what + 'は準備中です</strong>'
+      + (STORE.web
+        ? 'ストアでの公開までは、下のボタンからブラウザでお使いいただけます。'
+        : '公開までもうしばらくお待ちください。このページのURLは変わりません。');
+    return d;
+  }
+
+  /*
+   * ブラウザ版。**ストアが出そろうまでの主役で、出そろったあとは控えに回る。**
+   * `sub` を店側の有無で決めているのはそのため。
+   */
+  function web(hasStore) {
+    var a = button(STORE.web, 'ブラウザですぐ使う', hasStore);
+    var p = document.createElement('p');
+    p.className = 'other';
+    p.style.marginTop = '4px';
+    p.textContent = 'インストールなしで開きます。';
+    var wrap = document.createDocumentFragment();
+    wrap.appendChild(a);
+    wrap.appendChild(p);
+    return wrap;
+  }
+
+  /*
+   * 自動で飛ばさない。**関係の明示（公式アプリではないこと）を読んでもらう前に
+   * ストアへ飛ばしてしまわないため。** 現場で1タップ増えるが、そこは譲らない。
+   */
+  /*
+   * 並び順は「その端末で使えるもの」から。**別のOS向けのリンクは必ず最後。**
+   * iPhoneで「Android の方はこちら」がブラウザ版より上にあると、
+   * いま押せる唯一のボタンが下に埋もれる。
+   */
+  if (isIOS) {
+    // iPadに「iPhone版は準備中」と出ていたので、端末に合わせて呼び分ける
+    var iosLabel = (/iPad/.test(ua) || isIpadOS) ? 'iPad版' : 'iPhone版';
+    el.appendChild(STORE.ios ? button(STORE.ios, 'App Store を開く') : pending(iosLabel));
+    if (STORE.web) el.appendChild(web(!!STORE.ios));
+    if (STORE.android) el.appendChild(button(STORE.android, 'Android の方はこちら', true));
+  } else if (isAndroid) {
+    el.appendChild(STORE.android ? button(STORE.android, 'Google Play を開く') : pending('Android版'));
+    if (STORE.web) el.appendChild(web(!!STORE.android));
+    if (STORE.ios) el.appendChild(button(STORE.ios, 'iPhone の方はこちら', true));
+  } else {
+    // PCなど。どちらか分からないので両方出す
+    if (STORE.ios) el.appendChild(button(STORE.ios, 'App Store を開く'));
+    if (STORE.android) el.appendChild(button(STORE.android, 'Google Play を開く', !!STORE.ios));
+    if (!STORE.ios && !STORE.android && !STORE.web) el.appendChild(pending('アプリ'));
+    // PCならストアより先にブラウザ版。そもそもストアアプリを入れられない
+    if (STORE.web) el.appendChild(web(false));
+  }
+})();
+</script>
+</body>
+</html>
