@@ -138,7 +138,20 @@
  * **すぐ使えるものがあるのに「準備中です」と言って帰してしまう。**
  */
 var STORE = {
-  ios: '',
+  /*
+    2026-09-19 に埋めた（NoMaps-fan-app#181）。
+
+    **公開を確かめてから埋めている。** 審査に通ることとストアに並ぶことは別で、
+    早すぎると押した人が「見つかりません」に当たる。
+
+      https://apps.apple.com/jp/app/id6799340390
+      → 301 → .../jp/app/mymaps/id6799340390 → 200
+      「MyMapsアプリ - App Store」／価格 0／入手ボタンあり（予約注文ではない）
+
+    ⚠️ **短い形（/app/id…）のまま持つ。** 転送先の /app/mymaps/id… は
+    アプリ名が変わるとURLも変わるが、id だけの形は変わらない。
+  */
+  ios: 'https://apps.apple.com/jp/app/id6799340390',
   android: '',
   web: 'https://hokudai-ai-circle.github.io/mymaps-web/'
 };
